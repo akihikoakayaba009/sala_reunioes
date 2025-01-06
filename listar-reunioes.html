@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>Lista de Reuniões</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+</head>
+
+<body onload="carregaListaReunioes()">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+    <div class="container">
+        <a class="navbar-brand" href="#">Reuniões</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="adicionar-reuniao.html">Adicionar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="listar-reunioes.html">Lista</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 class="display-4">Lista de Reuniões</h1>
+    
+    <!-- Filtro de Data -->
+    <div class="form-group">
+        <label for="filtroData">Filtrar por Data:</label>
+        <input type="date" class="form-control" id="filtroData" onchange="carregaListaReunioes()">
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Hora</th>
+                        <th>Organizador</th>
+                        <th>Pauta</th>
+                        <th>Participantes</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaReunioes"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+class Bd {
+    constructor() {
+        this.endpoint = 'https://677c1ef820824100c07bf67b.mockapi.io/REUNIAO/REUNIAO';
+    }
+
+    async recuperarTodosRegistros() {
+        try {
+            const response = await fetch(this.endpoint);
+            if (!response.ok) throw new Error('Erro ao recuperar reuniões');
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
+    }
+
+    async remover(id) {
+        try {
+            const response = await fetch(`${this.endpoint}/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) throw new Error('Erro ao deletar reunião');
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+}
+
+let bd = new Bd();
+
+async function carregaListaReunioes() {
+    let reunioes = await bd.recuperarTodosRegistros();
+    let listaReunioes = document.getElementById('listaReunioes');
+    listaReunioes.innerHTML = '';
+    
+    // Obter a data do filtro
+    let filtroData = document.getElementById('filtroData').value;
+    
+    // Se uma data for selecionada, formatá-la para comparação
+    let filtroDataFormatada = filtroData ? new Date(filtroData).toISOString().split('T')[0] : null;
+
+    // Filtrar reuniões pela data
+    reunioes = reunioes.filter(function(r) {
+        let dataReuniao = new Date(r.data).toISOString().split('T')[0]; // Formatando a data para 'YYYY-MM-DD'
+        return !filtroData || dataReuniao === filtroDataFormatada;
+    });
+
+    reunioes.forEach(function(r) {
+        let linha = listaReunioes.insertRow();
+        
+        // Formatar a data e hora separadas
+        let data = new Date(r.data);
+        let dataFormatada = data.toLocaleDateString('pt-BR');
+        let horaFormatada = data.toLocaleTimeString('pt-BR');
+
+        // Inserir a data e a hora nas colunas
+        linha.insertCell(0).innerHTML = dataFormatada;
+        linha.insertCell(1).innerHTML = horaFormatada;
+
+        linha.insertCell(2).innerHTML = r.organizador;
+        linha.insertCell(3).innerHTML = r.pauta_reuniao;
+        linha.insertCell(4).innerHTML = r.n_participantes;
+
+        let btn = document.createElement("button");
+        btn.className = 'btn btn-danger';
+        btn.innerHTML = '<i class="fas fa-times"></i>';
+        btn.onclick = async function() {
+            await bd.remover(r.id);
+            carregaListaReunioes();
+        };
+        linha.insertCell(5).append(btn);
+    });
+}
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>Lista de Reuniões</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+</head>
+
+<body onload="carregaListaReunioes()">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+    <div class="container">
+        <a class="navbar-brand" href="#">Reuniões</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="adicionar-reuniao.html">Adicionar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="listar-reunioes.html">Lista</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 class="display-4">Lista de Reuniões</h1>
+    
+    <!-- Filtro de Data -->
+    <div class="form-group">
+        <label for="filtroData">Filtrar por Data:</label>
+        <input type="date" class="form-control" id="filtroData" onchange="carregaListaReunioes()">
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Hora</th>
+                        <th>Organizador</th>
+                        <th>Pauta</th>
+                        <th>Participantes</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaReunioes"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+class Bd {
+    constructor() {
+        this.endpoint = 'https://677c1ef820824100c07bf67b.mockapi.io/REUNIAO/REUNIAO';
+    }
+
+    async recuperarTodosRegistros() {
+        try {
+            const response = await fetch(this.endpoint);
+            if (!response.ok) throw new Error('Erro ao recuperar reuniões');
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
+    }
+
+    async remover(id) {
+        try {
+            const response = await fetch(`${this.endpoint}/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) throw new Error('Erro ao deletar reunião');
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+}
+
+let bd = new Bd();
+
+async function carregaListaReunioes() {
+    let reunioes = await bd.recuperarTodosRegistros();
+    let listaReunioes = document.getElementById('listaReunioes');
+    listaReunioes.innerHTML = '';
+    
+    // Obter a data do filtro
+    let filtroData = document.getElementById('filtroData').value;
+    
+    // Se uma data for selecionada, formatá-la para comparação
+    let filtroDataFormatada = filtroData ? new Date(filtroData).toISOString().split('T')[0] : null;
+
+    // Filtrar reuniões pela data
+    reunioes = reunioes.filter(function(r) {
+        let dataReuniao = new Date(r.data).toISOString().split('T')[0]; // Formatando a data para 'YYYY-MM-DD'
+        return !filtroData || dataReuniao === filtroDataFormatada;
+    });
+
+    reunioes.forEach(function(r) {
+        let linha = listaReunioes.insertRow();
+        
+        // Formatar a data e hora separadas
+        let data = new Date(r.data);
+        let dataFormatada = data.toLocaleDateString('pt-BR');
+        let horaFormatada = data.toLocaleTimeString('pt-BR');
+
+        // Inserir a data e a hora nas colunas
+        linha.insertCell(0).innerHTML = dataFormatada;
+        linha.insertCell(1).innerHTML = horaFormatada;
+
+        linha.insertCell(2).innerHTML = r.organizador;
+        linha.insertCell(3).innerHTML = r.pauta_reuniao;
+        linha.insertCell(4).innerHTML = r.n_participantes;
+
+        let btn = document.createElement("button");
+        btn.className = 'btn btn-danger';
+        btn.innerHTML = '<i class="fas fa-times"></i>';
+        btn.onclick = async function() {
+            await bd.remover(r.id);
+            carregaListaReunioes();
+        };
+        linha.insertCell(5).append(btn);
+    });
+}
+</script>
+</body>
+</html>
