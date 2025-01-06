@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>Adicionar Reunião</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+    <style>
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            margin-bottom: 40px;
+        }
+        .btn-custom {
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+    <div class="container">
+        <a class="navbar-brand" href="#">Reuniões</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="adicionar-reuniao.html">Adicionar</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="listar-reunioes.html">Lista</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 class="display-4 text-center mb-5">Adicionar Reunião</h1>
+    
+    <div class="form-container">
+        <form id="formAdicionarReuniao">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="organizador">Organizador</label>
+                    <input type="text" class="form-control" id="organizador" placeholder="Nome do Organizador" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="Email do Organizador" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="data">Data e Hora</label>
+                    <input type="datetime-local" class="form-control" id="data" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="pauta_reuniao">Pauta da Reunião</label>
+                    <input type="text" class="form-control" id="pauta_reuniao" placeholder="Tema principal da reunião" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="n_participantes">Número de Participantes</label>
+                    <input type="number" class="form-control" id="n_participantes" placeholder="Ex: 10" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-custom">
+                <i class="fas fa-plus"></i> Adicionar Reunião
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+class Bd {
+    constructor() {
+        this.endpoint = 'https://677c1ef820824100c07bf67b.mockapi.io/REUNIAO/REUNIAO';
+    }
+
+    async gravar(d) {
+        try {
+            const response = await fetch(this.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(d),
+            });
+            if (!response.ok) throw new Error('Erro ao cadastrar reunião');
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+}
+
+let bd = new Bd();
+
+document.getElementById('formAdicionarReuniao').addEventListener('submit', async function(event) {
+    event.preventDefault();  // Evita o envio do formulário e recarregamento da página.
+
+    let organizador = document.getElementById('organizador').value;
+    let email = document.getElementById('email').value;
+    let data = new Date(document.getElementById('data').value).toISOString(); // Convertendo para formato ISO
+    let pauta_reuniao = document.getElementById('pauta_reuniao').value;
+    let n_participantes = document.getElementById('n_participantes').value;
+
+    let reuniao = { organizador, email, data, pauta_reuniao, n_participantes, final: false };
+
+    await bd.gravar(reuniao);
+    alert('Reunião adicionada com sucesso!');
+    window.location.href = 'listar-reunioes.html';
+});
+</script>
+
+</body>
+</html>
